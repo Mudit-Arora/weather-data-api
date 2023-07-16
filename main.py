@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -8,11 +9,13 @@ def home():
 
 @app.route("/api/v1/<station>/<date>")
 def about(station, date):
-    tempertaure = 23
+    filename = "data_small/TG_STAID000001.txt" + str(station).zfill(6) + ".txt"
+    df = pd.read_csv(filename, skiprows=20, parse_date=["    DATE"])
+    temperature = df.loc[df['    DATE'] == date]['   TG'].squeeze() / 10
     return {"station": station,
             "date": date,
-            "tempertaure": tempertaure}
-    #return render_template("about.html")
+            "temperature": temperature}
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # specify port to run multiple apps at the same time
+    app.run(debug=True, port=5000)
